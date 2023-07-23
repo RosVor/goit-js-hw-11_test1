@@ -1,5 +1,4 @@
-import * as basicLightbox from 'basiclightbox';
-// API
+
 const apiKey = '38418747-ec354076649bfa1b688ea2611';
 const apiUrl = `https://pixabay.com/api/?key=${apiKey}&image_type=photo&orientation=horizontal&safesearch=true`;
 
@@ -10,7 +9,6 @@ const loadMoreBtn = document.querySelector('.load-more');
 let currentPage = 1;
 let searchQuery = '';
 
-// Fetch images from the API
 const fetchImages = async (query, page) => {
   try {
     const response = await fetch(`${apiUrl}&q=${query}&page=${page}`);
@@ -25,7 +23,6 @@ const fetchImages = async (query, page) => {
   }
 };
 
-// Render image cards
 const createGalleryItem = ({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
   return `
     <div class="photo-card">
@@ -47,24 +44,9 @@ const createGalleryItem = ({ webformatURL, largeImageURL, tags, likes, views, co
   `;
 };
 
-const openModal = (url) => {
-  const instance = basicLightbox.create(`
-    <img src="${url}" width="800" height="600">
-  `);
-  instance.show();
-};
-
 const renderImageCards = (images) => {
   const cardsHTML = images.map(createGalleryItem).join('');
   gallery.innerHTML = cardsHTML;
-
-  gallery.querySelectorAll('.gallery__link').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      const largeImageURL = link.href;
-      openModal(largeImageURL);
-    });
-  });
 
   loadMoreBtn.style.display = images.length > 0 ? 'block' : 'none';
 };
