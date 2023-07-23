@@ -1,5 +1,6 @@
 import Notiflix from 'notiflix';
-
+import * as basicLightbox from 'basiclightbox';
+import axios from 'axios';
 const apiKey = '38418747-ec354076649bfa1b688ea2611';
 const apiUrl = `https://pixabay.com/api/?key=${apiKey}&image_type=photo&orientation=horizontal&safesearch=true`;
 
@@ -12,12 +13,11 @@ let searchQuery = '';
 
 const fetchImages = async (query, page) => {
   try {
-    const response = await fetch(`${apiUrl}&q=${query}&page=${page}`);
-    if (!response.ok) {
+    const response = await axios.get(`${apiUrl}&q=${query}&page=${page}&per_page=40`);
+    if (response.status !== 200) {
       throw new Error('Network response was not ok');
     }
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
     return null;
@@ -27,7 +27,7 @@ const fetchImages = async (query, page) => {
 const createGalleryItem = ({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
   return `
     <div class="photo-card">
-      <a class="gallery__link" href="${largeImageURL}">
+      <a class="gallery__link" href="#">
         <img
           class="gallery__image"
           src="${webformatURL}"
@@ -94,4 +94,21 @@ const handleLoadMoreClick = async () => {
 };
 
 searchForm.addEventListener('submit', handleFormSubmit);
+gallery.addEventListener('click', (event) => {
+  event.preventDefault();
+  const target = event.target;
+
+  if (target.classList.contains('gallery__image')) {
+    const largeImageURL = target.dataset.source;
+    openModal(largeImageURL);
+  }
+});
+
 loadMoreBtn.addEventListener('click', handleLoadMoreClick);
+
+const openModal = (url) => {
+  const instance = basicLightbox.create(`
+    <img src="${url}" width="800" height="600">
+  `);
+  instance.show();
+};
