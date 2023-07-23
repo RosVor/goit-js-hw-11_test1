@@ -45,11 +45,19 @@ const createGalleryItem = ({ webformatURL, largeImageURL, tags, likes, views, co
   `;
 };
 
-const renderImageCards = (images) => {
+const appendImageCards = (images) => {
   const cardsHTML = images.map(createGalleryItem).join('');
-  gallery.innerHTML = cardsHTML;
+  gallery.insertAdjacentHTML('beforeend', cardsHTML);
 
   loadMoreBtn.style.display = images.length > 0 ? 'block' : 'none';
+};
+
+const renderImageCards = (images) => {
+  if (gallery.childElementCount === 0) {
+    appendImageCards(images);
+  } else {
+    loadMoreBtn.style.display = images.length > 0 ? 'block' : 'none';
+  }
 };
 
 const handleFormSubmit = async (event) => {
@@ -62,7 +70,6 @@ const handleFormSubmit = async (event) => {
 
     if (data && data.hits.length > 0) {
       renderImageCards(data.hits);
-      loadMoreBtn.style.display = 'block';
     } else {
       gallery.innerHTML = '';
       loadMoreBtn.style.display = 'none';
@@ -81,8 +88,7 @@ const handleLoadMoreClick = async () => {
     const data = await fetchImages(searchQuery, currentPage);
 
     if (data && data.hits.length > 0) {
-      const newImages = data.hits;
-      renderImageCards(newImages);
+      appendImageCards(data.hits);
     } else {
       loadMoreBtn.style.display = 'none';
       Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
@@ -94,6 +100,7 @@ const handleLoadMoreClick = async () => {
 };
 
 searchForm.addEventListener('submit', handleFormSubmit);
+
 gallery.addEventListener('click', (event) => {
   event.preventDefault();
   const target = event.target;
