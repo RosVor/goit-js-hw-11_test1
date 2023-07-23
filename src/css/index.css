@@ -1,11 +1,15 @@
 .search-form{
     margin-top: 20px;
+    margin-bottom: 20px;
+}
+.input{
     justify-content: center;
+    align-items: center;
 }
 
 .gallery {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); 
+    grid-template-columns: repeat(5, 1fr); 
     gap: 20px; 
   }
 
@@ -15,6 +19,8 @@
 }
 .info{
     display: flex;
+    justify-content: center;
+    gap: 25px; 
 }
 
 .load-more{
