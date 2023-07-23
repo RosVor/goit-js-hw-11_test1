@@ -1,9 +1,12 @@
+// JavaScript
 import * as basicLightbox from 'basiclightbox';
-// API
+
 const apiKey = '38418747-ec354076649bfa1b688ea2611';
 const apiUrl = `https://pixabay.com/api/?key=${apiKey}&image_type=photo&orientation=horizontal&safesearch=true`;
 
 const gallery = document.querySelector('.gallery');
+const searchForm = document.getElementById('search-form');
+const loadMoreBtn = document.querySelector('.load-more');
 
 let currentPage = 1;
 let searchQuery = '';
@@ -23,23 +26,28 @@ const fetchImages = async (query, page) => {
   }
 };
 
-// HTML markup 
-const createGalleryItem = ({ preview, original, description }) => {
+// Render image cards
+const createGalleryItem = ({ previewURL, largeImageURL, tags, likes, views, comments, downloads }) => {
   return `
     <div class="photo-card">
-      <a class="gallery__link" href="${original}">
+      <a class="gallery__link" href="${largeImageURL}">
         <img
           class="gallery__image"
-          src="${preview}"
-          data-source="${original}"
-          alt="${description}"
+          src="${previewURL}"
+          data-source="${largeImageURL}"
+          alt="${tags}"
         />
       </a>
+      <div class="info">
+        <p class="info-item"><b>Likes:</b> ${likes}</p>
+        <p class="info-item"><b>Views:</b> ${views}</p>
+        <p class="info-item"><b>Comments:</b> ${comments}</p>
+        <p class="info-item"><b>Downloads:</b> ${downloads}</p>
+      </div>
     </div>
   `;
 };
 
-// open the image in a lightbox
 const openModal = (url) => {
   const instance = basicLightbox.create(`
     <img src="${url}" width="800" height="600">
@@ -47,7 +55,6 @@ const openModal = (url) => {
   instance.show();
 };
 
-// render image cards 
 const renderImageCards = (images) => {
   const cardsHTML = images.map(createGalleryItem).join('');
   gallery.innerHTML = cardsHTML;
@@ -60,11 +67,9 @@ const renderImageCards = (images) => {
     });
   });
 
-  const loadMoreBtn = document.querySelector('.load-more');
-  loadMoreBtn.style.display = 'block';
+  loadMoreBtn.style.display = images.length > 0 ? 'block' : 'none';
 };
 
-// form submission
 const handleFormSubmit = async (event) => {
   event.preventDefault();
   searchQuery = event.target.searchQuery.value.trim();
@@ -74,7 +79,6 @@ const handleFormSubmit = async (event) => {
 
   if (data && data.hits.length > 0) {
     renderImageCards(data.hits);
-    loadMoreBtn.style.display = 'block';
   } else {
     gallery.innerHTML = '';
     loadMoreBtn.style.display = 'none';
@@ -82,25 +86,19 @@ const handleFormSubmit = async (event) => {
   }
 };
 
-// handle "Load more" 
 const handleLoadMoreClick = async () => {
-  const searchQuery = document.querySelector('[name="searchQuery"]').value.trim();
-  const currentPage = document.querySelectorAll('.photo-card').length / 20 + 1; 
-
+  currentPage++;
   const data = await fetchImages(searchQuery, currentPage);
 
   if (data && data.hits.length > 0) {
     const newImages = data.hits;
-    renderImageCards(newImages);
+    const currentImages = Array.from(gallery.querySelectorAll('.photo-card'));
+    gallery.innerHTML = [...currentImages, ...newImages.map(createGalleryItem)].join('');
   } else {
     loadMoreBtn.style.display = 'none';
     alert("We're sorry, but you've reached the end of search results.");
   }
 };
 
-const searchForm = document.getElementById('search-form');
-const loadMoreBtn = document.querySelector('.load-more');
-
 searchForm.addEventListener('submit', handleFormSubmit);
 loadMoreBtn.addEventListener('click', handleLoadMoreClick);
- 
