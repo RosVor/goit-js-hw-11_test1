@@ -8,6 +8,11 @@
     grid-template-columns: repeat(4, 1fr); 
     gap: 20px; 
   }
+
+.photo-card{
+    border: 1px solid #E7E9FC;
+    border-radius: 4px;
+}
 .info-item{
     display: flex;
 }
