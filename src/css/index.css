@@ -1,0 +1,13 @@
+.search-form{
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 20px; 
+  }
+.info-item{
+    display: flex;
+}
