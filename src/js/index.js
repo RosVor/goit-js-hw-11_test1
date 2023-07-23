@@ -2,9 +2,7 @@
 const apiKey = '38418747-ec354076649bfa1b688ea2611';
 const apiUrl = `https://pixabay.com/api/?key=${apiKey}&image_type=photo&orientation=horizontal&safesearch=true`;
 
-const searchForm = document.getElementById('search-form');
 const gallery = document.querySelector('.gallery');
-const loadMoreBtn = document.querySelector('.load-more');
 
 let currentPage = 1;
 let searchQuery = '';
@@ -40,6 +38,9 @@ const renderImageCards = (images) => {
   gallery.innerHTML = cardsHTML;
 };
 
+const loadMoreBtn = document.querySelector('.load-more');
+loadMoreBtn.style.display = 'block';
+
 // form submission
 const handleFormSubmit = async (event) => {
   event.preventDefault();
@@ -60,29 +61,24 @@ const handleFormSubmit = async (event) => {
 
 // "Load more" 
 const handleLoadMoreClick = async () => {
-  currentPage += 1;
+  const searchQuery = document.querySelector('[name="searchQuery"]').value.trim();
+  const currentPage = document.querySelectorAll('.photo-card').length / 20 + 1; // Залежно від кількості завантажених зображень
 
   const data = await fetchImages(searchQuery, currentPage);
 
   if (data && data.hits.length > 0) {
     const newImages = data.hits;
-    const currentImages = Array.from(gallery.querySelectorAll('.photo-card'));
-    const newCardsHTML = renderImageCards(newImages);
-
-    gallery.insertAdjacentHTML('beforeend', newCardsHTML);
-
-    const lastNewImage = currentImages.length;
-    const newImageCards = Array.from(gallery.querySelectorAll('.photo-card')).slice(lastNewImage);
-    
-    newImageCards[0].scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
+    renderImageCards(newImages);
   } else {
+    const loadMoreBtn = document.querySelector('.load-more');
     loadMoreBtn.style.display = 'none';
     alert("We're sorry, but you've reached the end of search results.");
   }
 };
+
+const searchForm = document.getElementById('search-form');
+const loadMoreBtn = document.querySelector('.load-more');
+
 searchForm.addEventListener('submit', handleFormSubmit);
 loadMoreBtn.addEventListener('click', handleLoadMoreClick);
  
