@@ -10,6 +10,7 @@ const loadMoreBtn = document.querySelector('.load-more');
 let currentPage = 1;
 let searchQuery = '';
 
+// Fetch images from the API
 const fetchImages = async (query, page) => {
   try {
     const response = await fetch(`${apiUrl}&q=${query}&page=${page}`);
@@ -24,13 +25,14 @@ const fetchImages = async (query, page) => {
   }
 };
 
-const createGalleryItem = ({ previewURL, largeImageURL, tags, likes, views, comments, downloads }) => {
+// Render image cards
+const createGalleryItem = ({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) => {
   return `
     <div class="photo-card">
       <a class="gallery__link" href="${largeImageURL}">
         <img
           class="gallery__image"
-          src="${previewURL}"
+          src="${webformatURL}"
           data-source="${largeImageURL}"
           alt="${tags}"
         />
@@ -56,10 +58,10 @@ const renderImageCards = (images) => {
   const cardsHTML = images.map(createGalleryItem).join('');
   gallery.innerHTML += cardsHTML;
 
-  gallery.querySelectorAll('.gallery__image').forEach((image) => {
-    image.addEventListener('click', (event) => {
+  gallery.querySelectorAll('.gallery__link').forEach((link) => {
+    link.addEventListener('click', (event) => {
       event.preventDefault();
-      const largeImageURL = event.target.dataset.source;
+      const largeImageURL = link.href;
       openModal(largeImageURL);
     });
   });
