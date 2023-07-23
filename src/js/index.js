@@ -1,3 +1,4 @@
+import * as basicLightbox from 'basiclightbox';
 // API
 const apiKey = '38418747-ec354076649bfa1b688ea2611';
 const apiUrl = `https://pixabay.com/api/?key=${apiKey}&image_type=photo&orientation=horizontal&safesearch=true`;
@@ -6,7 +7,8 @@ const gallery = document.querySelector('.gallery');
 
 let currentPage = 1;
 let searchQuery = '';
-// the API request
+
+// Fetch images from the API
 const fetchImages = async (query, page) => {
   try {
     const response = await fetch(`${apiUrl}&q=${query}&page=${page}`);
@@ -21,25 +23,46 @@ const fetchImages = async (query, page) => {
   }
 };
 
-// render image cards
-const renderImageCards = (images) => {
-  const cardsHTML = images.map((image) => `
+// HTML markup 
+const createGalleryItem = ({ preview, original, description }) => {
+  return `
     <div class="photo-card">
-      <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
-      <div class="info">
-        <p class="info-item"><b>Likes:</b> ${image.likes}</p>
-        <p class="info-item"><b>Views:</b> ${image.views}</p>
-        <p class="info-item"><b>Comments:</b> ${image.comments}</p>
-        <p class="info-item"><b>Downloads:</b> ${image.downloads}</p>
-      </div>
+      <a class="gallery__link" href="${original}">
+        <img
+          class="gallery__image"
+          src="${preview}"
+          data-source="${original}"
+          alt="${description}"
+        />
+      </a>
     </div>
-  `).join('');
-
-  gallery.innerHTML = cardsHTML;
+  `;
 };
 
-const loadMoreBtn = document.querySelector('.load-more');
-loadMoreBtn.style.display = 'block';
+// open the image in a lightbox
+const openModal = (url) => {
+  const instance = basicLightbox.create(`
+    <img src="${url}" width="800" height="600">
+  `);
+  instance.show();
+};
+
+// render image cards 
+const renderImageCards = (images) => {
+  const cardsHTML = images.map(createGalleryItem).join('');
+  gallery.innerHTML = cardsHTML;
+
+  gallery.querySelectorAll('.gallery__image').forEach((image) => {
+    image.addEventListener('click', (event) => {
+      event.preventDefault();
+      const largeImageURL = event.target.dataset.source;
+      openModal(largeImageURL);
+    });
+  });
+
+  const loadMoreBtn = document.querySelector('.load-more');
+  loadMoreBtn.style.display = 'block';
+};
 
 // form submission
 const handleFormSubmit = async (event) => {
@@ -59,10 +82,10 @@ const handleFormSubmit = async (event) => {
   }
 };
 
-// "Load more" 
+// handle "Load more" 
 const handleLoadMoreClick = async () => {
   const searchQuery = document.querySelector('[name="searchQuery"]').value.trim();
-  const currentPage = document.querySelectorAll('.photo-card').length / 20 + 1; // Залежно від кількості завантажених зображень
+  const currentPage = document.querySelectorAll('.photo-card').length / 20 + 1; 
 
   const data = await fetchImages(searchQuery, currentPage);
 
@@ -70,7 +93,6 @@ const handleLoadMoreClick = async () => {
     const newImages = data.hits;
     renderImageCards(newImages);
   } else {
-    const loadMoreBtn = document.querySelector('.load-more');
     loadMoreBtn.style.display = 'none';
     alert("We're sorry, but you've reached the end of search results.");
   }
