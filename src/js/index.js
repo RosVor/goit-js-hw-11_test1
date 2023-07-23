@@ -56,7 +56,7 @@ const openModal = (url) => {
 
 const renderImageCards = (images) => {
   const cardsHTML = images.map(createGalleryItem).join('');
-  gallery.innerHTML += cardsHTML;
+  gallery.innerHTML = cardsHTML;
 
   gallery.querySelectorAll('.gallery__link').forEach((link) => {
     link.addEventListener('click', (event) => {
